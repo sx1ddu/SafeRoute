@@ -454,5 +454,4 @@ This project helped me work with several areas of full-stack development:
 Initial version of SafeRoute.
 
 The main emergency reporting, monitoring, verification, real-time communication, and facility-management workflows are being developed as part of the first version.
-#   S a f e R o u t e  
- 
+#
