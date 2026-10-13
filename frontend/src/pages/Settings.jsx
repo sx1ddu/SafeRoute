@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { User, Lock, Bell, Shield, Save } from 'lucide-react';
-import axios from 'axios'; // <--- Naya Import asli logic ke liye
+import api from '../api/axiosInstance';
 import './Settings.css';
 
 const Settings = () => {
@@ -25,14 +25,11 @@ const Settings = () => {
     }
 
     try {
-      const token = localStorage.getItem('token');
-      const res = await axios.post('http://localhost:5000/api/auth/update-password', 
+      const res = await api.post('/auth/update-password', 
         {
           oldPassword: passwordData.oldPassword,
-          newPassword: passwordData.newPassword
-        }, 
-        {
-          headers: { Authorization: `Bearer ${token}` } // JWT Token bhej rahe hain
+          newPassword: passwordData.newPassword,
+          confirmPassword: passwordData.confirmPassword
         }
       );
 

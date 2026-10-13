@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api/axiosInstance';
 import { Users, Trash2, Mail, Shield, User as UserIcon, Filter } from 'lucide-react';
 import './UsersList.css';
 
@@ -16,10 +16,7 @@ const UsersList = () => {
 
   const fetchUsers = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const res = await axios.get('http://localhost:5000/api/auth/all-users', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await api.get('/auth/all-users');
       setUsers(res.data);
       setLoading(false);
     } catch (err) {
@@ -31,10 +28,7 @@ const UsersList = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Kya aap sach mein is user ko hatana chahte hain?")) {
       try {
-        const token = localStorage.getItem('token');
-        await axios.delete(`http://localhost:5000/api/auth/user/${id}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        await api.delete(`/auth/user/${id}`);
         setUsers(users.filter(user => user.id !== id));
         alert("User deleted successfully!");
       } catch (err) {

@@ -1,36 +1,5 @@
-const express = require('express');
-const router = express.Router();
-const db = require('../config/db');
-const protect = require('../middleware/authMiddleware');
-
-// POST: /api/stops/add-stop
-router.post('/add-stop', protect, async (req, res) => {
-    const { bus_id, stop_name, stop_lat, stop_lng, stop_order } = req.body;
-    try {
-        await db.execute(
-            'INSERT INTO bus_stops (bus_id, stop_name, stop_lat, stop_lng, stop_order) VALUES (?, ?, ?, ?, ?)',
-            [bus_id, stop_name, stop_lat, stop_lng, stop_order]
-        );
-        res.status(201).json({ success: true, msg: 'Stop added successfully! 📍' });
-    } catch (err) {
-        console.error("Error adding stop:", err);
-        res.status(500).json({ msg: 'Error adding stop', error: err.message });
-    }
-});
-
-// GET: /api/stops/bus/:busId — Bus ke saare stops fetch karo
-router.get('/bus/:busId', protect, async (req, res) => {
-    const { busId } = req.params;
-    try {
-        const [stops] = await db.execute(
-            'SELECT * FROM bus_stops WHERE bus_id = ? ORDER BY stop_order ASC',
-            [busId]
-        );
-        res.json(stops);
-    } catch (err) {
-        console.error("Error fetching stops:", err);
-        res.status(500).json({ msg: 'Error fetching stops' });
-    }
-});
-
-module.exports = router;
+const router=require('express').Router(); const db=require('../config/db'); const {protect,allowRoles}=require('../middleware/authMiddleware');
+const valid=(lat,lng)=>Number.isFinite(Number(lat))&&Number(lat)>=-90&&Number(lat)<=90&&Number.isFinite(Number(lng))&&Number(lng)>=-180&&Number(lng)<=180;
+router.post('/add-stop',protect,allowRoles('admin'),async(req,res,next)=>{const {bus_id,stop_name,stop_lat,stop_lng,stop_order}=req.body; if(!Number.isInteger(Number(bus_id))||!String(stop_name||'').trim()||!valid(stop_lat,stop_lng)||!Number.isInteger(Number(stop_order))) return res.status(400).json({message:'Invalid stop details.'}); try {const [r]=await db.execute('INSERT INTO bus_stops (bus_id,stop_name,stop_lat,stop_lng,stop_order) VALUES (?,?,?,?,?)',[bus_id,stop_name.trim(),stop_lat,stop_lng,stop_order]);res.status(201).json({success:true,id:r.insertId});}catch(e){next(e);}});
+router.get('/bus/:busId',protect,async(req,res,next)=>{try {const [rows]=await db.execute('SELECT bs.* FROM bus_stops bs WHERE bs.bus_id=? AND (EXISTS(SELECT 1 FROM buses b WHERE b.id=bs.bus_id AND (b.driver_id=? OR ?="admin")) OR EXISTS(SELECT 1 FROM students s WHERE s.bus_id=bs.bus_id AND s.parent_id=?)) ORDER BY stop_order',[req.params.busId,req.user.id,req.user.role,req.user.id]); if(!rows.length && req.user.role!=='admin') return res.status(403).json({message:'Not authorized for this route.'}); res.json(rows);}catch(e){next(e);}});
+module.exports=router;

@@ -14,7 +14,7 @@ The current codebase does not implement the emergency-response, Gemini AI, Mongo
 
 1. Install Node.js and create a MySQL database.
 2. Copy `backend/.env.example` to `backend/.env` and fill in the MySQL connection details. Keep SSL enabled for hosted databases.
-3. From `backend`, run `npm ci`, then `npm run db:setup` to create the tables. Run `npm run create-admin` in an interactive terminal to create the first administrator.
+3. From `backend`, run `npm ci`. Apply `backend/migrations/001_initial.sql` with a MySQL client to create the tables. Create the first administrator through a controlled database/bootstrap process; public registration only creates parent accounts.
 4. From `frontend`, run `npm ci`. Copy `frontend/.env.example` to `frontend/.env` for the local API and socket URLs.
 5. Run `npm run dev` in both folders. Vite prints the frontend address; the API listens on port 5000 by default.
 
@@ -22,6 +22,6 @@ The current codebase does not implement the emergency-response, Gemini AI, Mongo
 
 - Deploy `backend` as a Node web service. `render.yaml` provides a Render blueprint. Set `CORS_ORIGINS` to the exact deployed frontend origin and provide the MySQL variables and provider CA certificate when required.
 - Deploy `frontend` as a Vite app on Vercel using `frontend/vercel.json`. Set `VITE_API_URL` to the backend URL ending in `/api` and `VITE_SOCKET_URL` to the backend origin.
-- Run the database setup command against the production database, then create the first admin with the interactive command from a trusted terminal.
+- Apply the migration to the production database, then create the first admin through a trusted, controlled provisioning process.
 
 The location simulator is disabled by default. Set `ENABLE_ROUTE_SIMULATION=true` only for a demo environment; normal trip updates use the driver's browser GPS.

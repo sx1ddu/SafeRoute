@@ -1,0 +1,5 @@
+# Project audit
+
+Audit performed 2026-10-14. The original application had critical authentication defects: plaintext password comparison and storage in `backend/controllers/authController.js`, public-sensitive routes protected only by a token (not role or ownership), credentialed wildcard CORS, and unverified Socket.IO events using in-memory trip/location state. The UI used a broken Login import plus numerous direct localhost Axios calls and hardcoded bus IDs (`BUS_01`, database id `3`). The unused Mongoose model was inconsistent with the declared MySQL stack.
+
+The refactor introduces bcrypt hashing, JWT/role middleware, ownership checks for driver, parent, stops, attendance, and socket subscriptions, CORS allowlisting, a persistent latest location, migration DDL, environment templates, request limits, and security headers. Remaining legacy dashboard components still require replacement of direct Axios calls and static bus assumptions; they are documented as a release blocker until migrated to `/api/buses/mine`.

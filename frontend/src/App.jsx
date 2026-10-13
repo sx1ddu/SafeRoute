@@ -4,10 +4,12 @@ import AdminDashboard from './pages/AdminDashboard';
 import ParentView from './pages/ParentView';
 import DriverView from './pages/DriverView';
 import Login from './pages/Login';
+import Landing from './pages/Landing';
+import Register from './pages/Register';
 import Settings from './pages/Settings'; 
 import UsersList from './pages/UsersList';
 import AddBus from './pages/AddBus'; 
-import { useAuth } from './context/AuthContext';
+import { useAuth } from './context/useAuth';
 
 const ProtectedRoute = ({ children, allowedRole }) => {
   const { user, loading } = useAuth(); // Loading state check karna zaroori hai
@@ -44,7 +46,9 @@ function App() {
   return (
     <Router>
       <Routes>
+        <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
         {/* --- 1. ADMIN ZONE --- */}
         <Route path="/admin" element={
@@ -85,7 +89,6 @@ function App() {
         } />
         
         {/* Default Redirects */}
-        <Route path="/" element={<Navigate replace to="/login" />} />
         <Route path="*" element={<Navigate replace to="/login" />} />
       </Routes>
     </Router>

@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // ✅ FIXED: Render live link with /api suffix for proper routing
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'https://school-bus-tracking.onrender.com/api',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -29,7 +29,7 @@ api.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('userRole');
-      window.location.href = '/login';
+      if (window.location.pathname !== '/login') window.location.assign('/login');
     }
     return Promise.reject(error);
   }

@@ -1,28 +1,12 @@
-const express = require('express');
-const router = express.Router();
-const authController = require('../controllers/authController');
-const protect = require('../middleware/authMiddleware'); 
-
-// Ek simple middleware jo sirf Admin ko allow kare
-const adminOnly = (req, res, next) => {
-    if (req.user && req.user.role === 'admin') {
-        next();
-    } else {
-        res.status(403).json({ message: "Access Denied: Sirf Admin hi users dekh sakta hai" });
-    }
-};
-
-router.post('/login', authController.login);
-
-// Register Routes (Admin Protected)
-router.post('/register-driver', protect, adminOnly, authController.registerDriver);
-router.post('/register', protect, adminOnly, authController.registerUser);
-
-// User Management (Admin Protected)
-router.get('/all-users', protect, adminOnly, authController.getAllUsers);
-router.delete('/user/:id', protect, adminOnly, authController.deleteUser);
-
-// Profile & Settings
-router.post('/update-password', protect, authController.updatePassword);
-
+const router = require('express').Router();
+const c = require('../controllers/authController');
+const { protect, allowRoles } = require('../middleware/authMiddleware');
+const rateLimit = require('express-rate-limit');
+const authLimit = rateLimit({ windowMs: 900000, limit: 15, standardHeaders: true, legacyHeaders: false, message: { message: 'Too many attempts. Please try again later.' } });
+router.post('/login', authLimit, c.login);
+router.post('/register', authLimit, c.registerPublic);
+router.post('/register-user', protect, allowRoles('admin'), c.registerManaged);
+router.get('/all-users', protect, allowRoles('admin'), c.getAllUsers);
+router.delete('/user/:id', protect, allowRoles('admin'), c.deleteUser);
+router.post('/update-password', protect, c.updatePassword);
 module.exports = router;
